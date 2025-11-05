@@ -1,14 +1,15 @@
 import React from "react";
+import type { Mesite } from "../../store/store";
 
 interface Column {
-  key: string;
+  key: keyof Mesite;
   label: string;
-  render?: (value: unknown, row: Record<string, unknown>) => React.ReactNode;
+  render?: (value: Mesite[keyof Mesite], row: Mesite) => React.ReactNode;
 }
 
 interface TableProps {
   columns: Column[];
-  data: Record<string, unknown>[];
+  data: Mesite[];
   className?: string;
 }
 
@@ -46,8 +47,7 @@ export const Table: React.FC<TableProps> = ({
                 >
                   {column.render
                     ? column.render(row[column.key], row)
-                    : String(row[column.key] ?? '')
-                  }
+                    : String(row[column.key] ?? '')}
                 </td>
               ))}
             </tr>
