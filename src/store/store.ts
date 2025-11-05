@@ -1,13 +1,5 @@
 import { create } from "zustand";
-
-export interface Mesite {
-  id: number;
-  name: string;
-  address: string;
-  evangelizationDate: string;
-  contact: string;
-  evangelizerName: string;
-}
+import type { Mesite } from "../types/mesites";
 
 interface MesitesState {
   mesites: Mesite[];

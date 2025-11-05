@@ -1,5 +1,5 @@
 import React from "react";
-import type { Mesite } from "../../store/store";
+import type { Mesite } from "../../types/mesites";
 
 interface Column {
   key: keyof Mesite;

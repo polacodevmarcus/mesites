@@ -2,6 +2,7 @@ import { useMesitesStore } from "../../../store/store";
 import { Table } from "../../../components";
 import { useEffect } from "react";
 import supabase from "../../../supabase-client";
+import type { Column } from "../../../types/mesites";
 
 interface MesitesListProps {
   searchTerm: string;
@@ -56,7 +57,7 @@ export const MesitesList = ({ searchTerm }: MesitesListProps) => {
   return (
     <div>
       {filteredMesites.length > 0 ? (
-        <Table columns={columns} data={filteredMesites} />
+        <Table columns={columns as unknown as Column[]} data={filteredMesites} />
       ) : (
         <div className="text-center py-8 text-gray-500">
           {searchTerm ?
