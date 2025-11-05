@@ -1,22 +1,70 @@
-import { Table } from '../../../components';
-import { useMesitesStore } from '../../../store/store';
+import { useMesitesStore } from "../../../store/store";
+import { Table } from "../../../components";
+import { useEffect } from "react";
+import supabase from "../../../supabase-client";
 
-export const MesitesList = () => {
+interface MesitesListProps {
+  searchTerm: string;
+}
 
-  const mesitesData = useMesitesStore((state) => state.mesites);
+export const MesitesList = ({ searchTerm }: MesitesListProps) => {
+  const mesites = useMesitesStore((state) => state.mesites);
+  const { setAllMesites } = useMesitesStore();
+
+  useEffect(() => {
+    // Fetch mesites from Supabase and set in store
+    const fetchMesites = async () => {
+      const { data, error } = await supabase.from('mesites').select('*');
+      if (error) {
+        console.error('Error fetching mesites:', error);
+      } else if (data) {
+        const formattedMesites = data.map((item) => ({
+          id: item.id,
+          name: item.name,
+          address: item.address,
+          evangelizationDate: item.evangelization_date,
+          contact: item.contact,
+          evangelizerName: item.evangelizer_name
+        }));
+        setAllMesites(formattedMesites);
+      }
+    };
+
+    fetchMesites();
+  }, [setAllMesites]);
+
+  // Filter mesites based on search term
+  const filteredMesites = (mesites ?? []).filter((mesite) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      mesite.name.toLowerCase().includes(searchLower) ||
+      mesite.address.toLowerCase().includes(searchLower) ||
+      mesite.contact.toLowerCase().includes(searchLower) ||
+      mesite.evangelizerName.toLowerCase().includes(searchLower) ||
+      mesite.evangelizationDate.includes(searchTerm)
+    );
+  });
 
   const columns = [
     { key: "name", label: "Nombre" },
-    { key: "address", label: "Direccion" },
-    { key: "evangelizationDate", label: "Fecha de Evangelizacion" },
+    { key: "address", label: "Dirección" },
+    { key: "evangelizationDate", label: "Fecha de Evangelización" },
     { key: "contact", label: "Contacto" },
     { key: "evangelizerName", label: "Evangelizador" }
   ];
 
   return (
-    <>
-      <h2 className="text-left text-3xl font-bold text-gray-800 pb-4">Personas Evangelizadas</h2>
-      <Table columns={columns} data={mesitesData} />
-    </>
-  )
-}
+    <div>
+      {filteredMesites.length > 0 ? (
+        <Table columns={columns} data={filteredMesites} />
+      ) : (
+        <div className="text-center py-8 text-gray-500">
+          {searchTerm ?
+            `No se encontraron resultados para "${searchTerm}"` :
+            "No hay personas registradas"
+          }
+        </div>
+      )}
+    </div>
+  );
+};
