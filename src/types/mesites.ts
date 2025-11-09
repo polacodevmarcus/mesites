@@ -11,4 +11,5 @@ export interface Mesite {
   evangelizationDate: string;
   contact: string;
   evangelizerName: string;
+  actions?: React.ReactNode;
 }

@@ -11,12 +11,14 @@ interface TableProps {
   columns: Column[];
   data: Mesite[];
   className?: string;
+  onDelete?: (id: number, name: string) => void;
 }
 
 export const Table: React.FC<TableProps> = ({
   columns,
   data,
-  className = ""
+  className = "",
+  onDelete
 }) => {
   return (
     <div className={`overflow-x-auto bg-white rounded-lg shadow ${className}`}>
@@ -36,7 +38,7 @@ export const Table: React.FC<TableProps> = ({
         </thead>
         <tbody className="divide-y divide-gray-200">
           {data.map((row, index) => (
-            <tr key={index}>
+            <tr key={index} className="hover:bg-blue-50">
               {columns.map((column) => (
                 <td
                   key={column.key}
@@ -45,9 +47,24 @@ export const Table: React.FC<TableProps> = ({
                     : 'text-gray-500'
                     }`}
                 >
-                  {column.render
-                    ? column.render(row[column.key], row)
-                    : String(row[column.key] ?? '')}
+                  {column.key === 'actions' ? (
+                    <div>
+                      {onDelete && (
+                        <button
+                          onClick={() => onDelete(row.id, row.name)}
+                          className="text-red-500 hover:cursor-pointer"
+                        >
+                          <span className="material-symbols-outlined">
+                            delete
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                  ) : column.render ? (
+                    column.render(row[column.key as keyof Mesite], row)
+                  ) : (
+                    String(row[column.key as keyof Mesite] ?? '')
+                  )}
                 </td>
               ))}
             </tr>

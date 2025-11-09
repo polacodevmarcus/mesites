@@ -1,8 +1,10 @@
 import { useMesitesStore } from "../../../store/store";
 import { Table } from "../../../components";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import supabase from "../../../supabase-client";
 import type { Column } from "../../../types/mesites";
+import { columns } from "./constant";
+import { MesitesDelete } from "../mesites-delete";
 
 interface MesitesListProps {
   searchTerm: string;
@@ -10,7 +12,10 @@ interface MesitesListProps {
 
 export const MesitesList = ({ searchTerm }: MesitesListProps) => {
   const mesites = useMesitesStore((state) => state.mesites);
-  const { setAllMesites } = useMesitesStore();
+  const { setAllMesites, removeMesite } = useMesitesStore();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [nameToDelete, setNameToDelete] = useState('');
+  const [idToDelete, setIdToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     // Fetch mesites from Supabase and set in store
@@ -34,6 +39,24 @@ export const MesitesList = ({ searchTerm }: MesitesListProps) => {
     fetchMesites();
   }, [setAllMesites]);
 
+  const handleDelete = async (id: number, name: string) => {
+    setIsDeleteModalOpen(true);
+    setIdToDelete(id);
+    setNameToDelete(name);
+  };
+
+  const handleConfirmDelete = async () => {
+    const { error } = await supabase
+      .from('mesites')
+      .delete()
+      .eq('id', idToDelete);
+    if (!error) {
+      // Remove from store
+      removeMesite(idToDelete ?? 0);
+    }
+    setIsDeleteModalOpen(false);
+  };
+
   // Filter mesites based on search term
   const filteredMesites = (mesites ?? []).filter((mesite) => {
     const searchLower = searchTerm.toLowerCase();
@@ -46,18 +69,21 @@ export const MesitesList = ({ searchTerm }: MesitesListProps) => {
     );
   });
 
-  const columns = [
-    { key: "name", label: "Nombre" },
-    { key: "address", label: "Dirección" },
-    { key: "evangelizationDate", label: "Fecha de Evangelización" },
-    { key: "contact", label: "Contacto" },
-    { key: "evangelizerName", label: "Evangelizador" }
-  ];
-
   return (
     <div>
       {filteredMesites.length > 0 ? (
-        <Table columns={columns as unknown as Column[]} data={filteredMesites} />
+        <>
+          <Table
+            columns={columns as unknown as Column[]}
+            data={filteredMesites}
+            onDelete={handleDelete}
+          />
+          <MesitesDelete
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+            onDelete={handleConfirmDelete}
+            nameToDelete={nameToDelete} />
+        </>
       ) : (
         <div className="text-center py-8 text-gray-500">
           {searchTerm ?

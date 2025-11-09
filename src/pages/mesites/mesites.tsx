@@ -4,7 +4,7 @@ import { MesitesForm } from "./mesites-form"
 import { MesitesList } from "./mesites-list"
 
 export const Mesites = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalFormOpen, setIsModalFormOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,13 +34,13 @@ export const Mesites = () => {
             <Button
               icon="add"
               name="Agregar"
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => setIsModalFormOpen(true)}
             />
           </div>
         </div>
         <MesitesForm
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          isOpen={isModalFormOpen}
+          onClose={() => setIsModalFormOpen(false)}
         />
         <MesitesList searchTerm={searchTerm} />
       </div>
