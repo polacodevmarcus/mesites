@@ -42,7 +42,9 @@ export const Mesites = () => {
           isOpen={isModalFormOpen}
           onClose={() => setIsModalFormOpen(false)}
         />
-        <MesitesList searchTerm={searchTerm} />
+        <>
+          <MesitesList searchTerm={searchTerm} />
+        </>
       </div>
     </>
   )
